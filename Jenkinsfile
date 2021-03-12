@@ -2,7 +2,7 @@ pipeline {
   agent {
     label "linux-slave"
   }
-
+  
     stages {
         stage('Hello') {
             steps {
