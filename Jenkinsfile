@@ -2,10 +2,30 @@ pipeline{
   agent{
       label "linux-slave"
   }
+  triggers {
+    GenericTrigger(
+      genericVariables: [
+        [key: 'ref', value: '$.ref']
+      ],
+
+      causeString: 'Triggered on $ref',
+
+      token: 'testez',
+      //  tokenCredentialId: '',
+
+      //  printContributedVariables: true,
+      //  printPostContent: true,
+
+      //  silentResponse: false,
+
+      regexpFilterText: '$ref',
+      regexpFilterExpression: 'refs/heads/main'
+    )
+  }
   environment{
-        GIT_URL = "https://github.com/The1Central/mulesoft-consent"
-        GIT_CREDENTIALS = "the1card_github_token"
-        GIT_BRANCH = "develop"
+        GIT_URL = "https://github.com/TaSuttipan/pipeline"
+        GIT_CREDENTIALS = "TaSuttipan"
+        GIT_BRANCH = "main"
         AWS_CREDENTIALS = "The1_non_prod_T1C"
         CONSENT_PUBLIC_BUCKET = "the1-consent-stg"
         MULESOFT_BUCKET = "the1-mulesoft-dcs-stg"
@@ -39,6 +59,24 @@ pipeline{
       stage("List"){
           steps{
               sh "ls -l"
+          }
+      }
+    stage("Checkout"){
+          steps{
+            script{
+              // GIT_BRANCH = ref.split('/')[2]
+              checkout([
+                $class: 'GitSCM', 
+                branches: [[name: "*/${GIT_BRANCH}"]], 
+                doGenerateSubmoduleConfigurations: false, 
+                extensions: [], 
+                submoduleCfg: [], 
+                userRemoteConfigs: [[
+                  credentialsId: "${GIT_CREDENTIALS}", 
+                  url: "${GIT_URL}"
+                  ]]
+              ])
+            }
           }
       }
   }
